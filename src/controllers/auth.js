@@ -84,7 +84,7 @@ export const register = async (req, res) => {
     usersId: createdUser.id,
   });
 
-  res.status(200).json({ user: createdUser, token });
+  res.status(200).json({ user: createdUser, token: token.token });
 };
 // login internal
 export const loginInternal = async (req, res) => {

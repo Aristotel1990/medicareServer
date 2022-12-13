@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { check } from "express-validator";
 
-import { login, loginInternal, register } from "../controllers/auth";
+import { login, register } from "../controllers/auth";
 
 export const LoginValidation = [
   check("email", "BAD_REQUEST").exists().not().isEmpty().isEmail().trim(),
@@ -19,7 +19,5 @@ export const auth = () => {
   auth.post("/login", LoginValidation, login);
   // register
   auth.post("/register", RegisterValidation, register);
-  // login internal
-  auth.post("/login/internal", LoginValidation, loginInternal);
   return auth;
 };

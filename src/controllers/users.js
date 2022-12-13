@@ -1,101 +1,8 @@
-import { Account, Doctor, Token, User } from "../models/index";
+import { Doctor, User } from "../models/index";
 import bcrypt from "bcryptjs";
-import sequelize, { Op } from "sequelize";
-import user from "../models/user";
-import { isCompanyAdmin } from "../services/user";
+import sequelize from "sequelize";
+
 import db, { Appointment, AppointmentHistory } from "../models";
-
-// export const getUserById = async (req, res) => {
-//   try {
-//     const user = await User.findOne({
-//       where: {
-//         id: req.params.id
-//       },
-//       include: [
-//         {
-//           model: Token,
-//           as: 'token'
-//         }
-//       ]
-//     })
-//     res.json(user)
-//   } catch (e) {
-//     req.log.error('error in get user', { error: e.message })
-//     return res.status(500).json({ error: 'ERROR' })
-//   }
-// }
-
-// // get user by Id with address
-// export const getUserByIdWithAddress = async (req, res) => {
-//   try {
-//     const user = await User.findOne({
-//       where: {
-//         id: req.params.id
-//       },
-//       include: [
-//         {
-//           model: Address,
-//           as: 'address',
-//           where: {
-//             deletedAt: {
-//               [Op.is]: null // IS NULL
-//             }
-//           }
-//         }
-//       ]
-//     })
-//     res.json(user)
-//   } catch (e) {
-//     req.log.error('error in get user', { error: e.message })
-//     return res.status(500).json({ error: 'ERROR' })
-//   }
-// }
-// // delete addres of User (Soft delete)
-// export const addressDelete = async (req, res) => {
-//   try {
-//     const address = await Address.update(
-//       { deletedAt: new Date() },
-//       {
-//         where: { userId: req.params.id }
-//       }
-//     )
-//     res.json(address)
-//   } catch (e) {
-//     req.log.error('error in deleting address of user', { error: e.message })
-//     return res.status(500).json({ error: 'ERROR' })
-//   }
-// }
-// // create user
-
-// export const createUser = async (req, res) => {
-//   try {
-//     const body = req.body
-//     const user = await User.create({
-//       firstName: body.firstName,
-//       lastName: body.lastName,
-//       email: body.email,
-//       role: body.role
-//     })
-
-//     res.json(user)
-//   } catch (e) {
-//     req.log.error('error in create user', { error: e.message })
-//     return res.status(500).json({ error: 'ERROR' })
-//   }
-// }
-// // get role from user
-// export const getRoleByUser = async (req, res) => {
-//   try {
-//     const user = await User.findOne({
-//       where: { id: req.params.id }
-//     })
-//     res.json(user.role)
-//   } catch (e) {
-//     req.log.error('get role of user', { error: e.message })
-//     return res.status(500).json({ error: 'ERROR' })
-//   }
-// }
-// // change  password of user
 
 export const changePassword = async (req, res) => {
   try {
@@ -256,7 +163,6 @@ export const getUser = async (req, res) => {
     return res.status(500).json({ error: "ERROR" });
   }
 };
-// udate role of user
 export const selectDoctor = async (req, res) => {
   const { user } = req;
   const { id } = req.params;
@@ -277,7 +183,6 @@ export const selectDoctor = async (req, res) => {
     return res.status(500).json({ error: "ERROR" });
   }
 };
-// create order
 export const newAppointment = async (req, res) => {
   const transaction = await db.sequelize.transaction();
   try {
@@ -360,9 +265,12 @@ export const getAllAppointments = async (req, res) => {
         type: sequelize.QueryTypes.SELECT,
       }
     );
-
-    res.json(findHistory);
+    if (findHistory.length <= 0) {
+      transaction.commit();
+      res.json([]);
+    }
     transaction.commit();
+    res.json(findHistory);
   } catch (e) {
     transaction.rollback();
     req.log.error("error in create appointment", { error: e.message });
@@ -403,7 +311,7 @@ export const deleteAppointment = async (req, res) => {
   const transaction = await db.sequelize.transaction();
 
   try {
-    const id = req.params.id;
+    const id = req.body.id;
     const user = req.user;
     const acc = await AppointmentHistory.findByPk(id);
     if (!acc) throw new Error("Appointment not found");
@@ -418,38 +326,11 @@ export const deleteAppointment = async (req, res) => {
       },
       { transaction }
     );
+    transaction.commit();
     res.json(id);
   } catch (error) {
-    req.log.error("error in get one courier", { error: error.message });
+    transaction.rollback();
+    req.log.error("error in delete appointments", { error: error.message });
     return res.status(500).json({ error: error.message });
   }
 };
-
-// export const getAccount = async (req, res) => {
-//   const { user } = req
-
-//   try {
-//     if (isSystemAdmin(user.role)) {
-//       const account = {
-//         addressText: 'Tirane Zyrat Qendrore',
-//         cityId: 1,
-//         countryId: 1
-//       }
-//       res.json(account)
-//     } else if (isBranchAdmin(user.role)) {
-//       const account = await Branch.findOne({
-//         where: { id: user.branchId }
-//       })
-//       res.json(account)
-//     } else if (isCompanyAdminOrCompanyBranch(user.role)) {
-//       const account = await Account.findOne({
-//         where: { id: user.accountId }
-//       })
-//       res.json(account)
-//     }
-//     res.status('error in user')
-//   } catch (e) {
-//     req.log.error('error in get account', { error: e.message })
-//     return res.status(500).json({ error: 'ERROR' })
-//   }
-// }

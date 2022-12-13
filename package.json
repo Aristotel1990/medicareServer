@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon -w src --exec \"babel-node src --presets latest,stage-0\"",
     "test": "echo \"Error: no test specified\" && exit 1"
+    
   },
   "author": "",
   "license": "ISC",

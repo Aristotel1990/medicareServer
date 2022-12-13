@@ -3,10 +3,7 @@ import { Router } from "express";
 
 // import { verifyToken } from '../middleware/auth'
 import { v1 } from "./v1";
-// import { auth } from "./auth";
-import { SENDGRID_API_KEY } from "../config/env";
-// import { Order, Transactions } from '../models'
-// import { defineBranch } from '../services/order'
+
 import { auth } from "./auth";
 
 export const api = () => {

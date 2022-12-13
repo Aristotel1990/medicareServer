@@ -76,17 +76,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       role: {
         type: DataTypes.ENUM,
-        values: [
-          "superAdmin",
-          "admin",
-          "branchManager",
-          "courier",
-          "finance",
-          "companyAdmin",
-          "companyBranch",
-          "PF",
-          "user",
-        ],
+        values: ["patient"],
       },
       salt: {
         type: DataTypes.STRING,
